@@ -2,28 +2,35 @@ version: '3.7'
 
 services:
     backend:
-        build:
-        #TODO
+        build: ./API2/
+        ports:
+            - 8080:80
         networks:
-        #TODO
+            - app-network
         depends_on:
-        #TODO
+            - database
 
     database:
-        build:
-        #TODO
+        build: ./postgres/
+        image: postgres:14.1-alpine
+        environment:
+        - POSTGRES_DB=db
+        - POSTGRES_USER=usr
+        - POSTGRES_PASSWORD=pwd
+        ports:
+            - 5432:5432
         networks:
-        #TODO
+            - app-network
 
     httpd:
-        build:
-        #TODO
+        build: ./http/
         ports:
-        #TODO
+            - 80:80
         networks:
-        #TODO
+            - app-network
         depends_on:
-        #TODO
+            - backend
 
 networks:
-    my-network: app-network
+    app-network:
+        driver: bridge
