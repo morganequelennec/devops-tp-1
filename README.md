@@ -4,7 +4,7 @@
 
 > Pourquoi avons-nous besoin d'un volume à attacher à notre conteneur postgres ?
 
-Les volumes de Docker permettent de persister les données d'un conteneur même après son suppression ou sa mise à jour. En attachant un volume à un conteneur PostgreSQL, vous pouvez stocker les données de la base de données de manière permanente sur le système de fichiers hôte, plutôt que de les stocker uniquement dans le conteneur, qui peut être supprimé ou modifié. De cette manière, vous pouvez facilement sauvegarder et restaurer les données de la base de données.
+Les volumes de Docker permettent de faire persister les données d'un conteneur même après son suppression ou sa mise à jour. En attachant un volume à un conteneur PostgreSQL, on peut stocker les données de la base de données de manière permanente sur le système de fichiers hôte, plutôt que de les stocker uniquement dans le conteneur, qui pourrait être supprimé ou modifié. Ainsi, les données sont sauvegardées.
 
 **Commandes** 
 
@@ -12,8 +12,8 @@ Les volumes de Docker permettent de persister les données d'un conteneur même 
 * docker pull postgres:14.1-alpine
 * docker run --name devops-postgres -e POSTGRES_PASSWORD=pwd -e  POSTGRES_USER=usr -e POSTGRES_DB=db -d postgres:14.1-alpine
 * docker network create app-network
-* docker run --name postgres -d --net=app-network mquelennec/postgres
-* docker run -p 8080:8080 --net=app-network -d --name=adminer adminer
+* docker run --name postgres -d --net=app-network postgres
+* docker run -p 8090:8080 --name adminer --net=app-network adminer
 * docker ps
 * docker -v /my/own/datadir:/var/lib/postgresql/data
 ```
@@ -33,11 +33,15 @@ Voir les screens dans le dossier `./postgres/screen`
 **Commandes**
 
 ```cmd
- docker pull httpd:4.2 
+docker build -t app-appache . 
+docker run -p 80:80 --name app-apache --net=app-network app-apache
 ```
-```cmd
-docker run -dit --name my-running-app -p 8081:80 my-apache2 cp  ./public-html/:/usr/local/apache2/conf/httpd.conf
-docker exec -it my-running-app "/bin/bash"
+
+**Dockerfile**  
+```Dockerfile
+FROM httpd:2.4 AS web-server
+COPY ./public-html/ /usr/local/apache2/htdocs/
+COPY httpd.conf /usr/local/apache2/conf/httpd.conf
 ```
 
 > Pourquoi avons-nous besoin d'un proxy inverse ?
@@ -56,3 +60,13 @@ La déclaration WORKDIR définit le répertoire de travail à MYAPP_HOME.
 La déclaration COPY copie le fichier "pom.xml" et le répertoire "src" dans le répertoire de travail.
 La déclaration RUN exécute la commande "mvn package" avec l'option "-DskipTests" pour construire l'application Java.
 ```
+
+**Commandes**
+
+```cmd
+docker build -t app-java-with-api . 
+docker run -p 8080:8080 --name app-java-with-api --net=app-network app-java-with-api
+```
+  
+**docker compose**
+![alt text](./docker-ps.png)
