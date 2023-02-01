@@ -1,36 +1,35 @@
-version: '3.7'
-
+version: '3.3'
 services:
-    backend:
-        build: ./API2/
-        ports:
-            - 8080:80
-        networks:
-            - app-network
-        depends_on:
-            - database
+  backend:
+    container_name: backend
+    build: ./API2/
+    networks:
+      - app-network
+    depends_on:
+      - database
 
-    database:
-        build: ./postgres/
-        image: postgres:14.1-alpine
-        environment:
-        - POSTGRES_DB=db
-        - POSTGRES_USER=usr
-        - POSTGRES_PASSWORD=pwd
-        ports:
-            - 5432:5432
-        networks:
-            - app-network
+  database:
+    container_name: database
+    restart: always
+    build: ./postgres/
+    networks:
+      - app-network
+    env_file:
+      - postgres/env
 
-    httpd:
-        build: ./http/
-        ports:
-            - 80:80
-        networks:
-            - app-network
-        depends_on:
-            - backend
+  httpd:
+    container_name: reverse_proxy
+    build: ./http/
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+
+volumes:
+  my_db_volume:
+    driver: bridge
 
 networks:
-    app-network:
-        driver: bridge
+  app-network:
+    driver: bridge
